@@ -12,9 +12,11 @@ import SelectAge from "./SelectAge";
 const CreatForm: React.FC = () => {
   const [formValues, setFormValues] = React.useState({
     name: '',
+    sex: '',
+    age: 0,
     profession: '',
     problems: '',
-    dailyLife: ''
+    behavior: ''
   });
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -22,10 +24,33 @@ const CreatForm: React.FC = () => {
     setFormValues({ ...formValues, [name]: value });
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleGenderChange = (gender: string) => {
+    setFormValues({ ...formValues, sex: gender });
+  };
+
+  const handleAgeChange = (age: number) => {
+    setFormValues({ ...formValues, age});
+  };
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    // Submit logic here
-    console.log(formValues);
+    console.log(JSON.stringify(formValues));
+    
+    // JSON形式のデータを送信
+    const response = await fetch("http://localhost:30000/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formValues),
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      console.log("成功：", data);
+    } else {
+      console.error("エラー：", response.statusText);
+    }
   };
 
   return (
@@ -57,11 +82,10 @@ const CreatForm: React.FC = () => {
           />
           {/* 性別と年齢を縦並びにするためのボックス */}
           <Box sx={{ display: 'flex', width: '100%', alignItems: "center", justifyContent: "center"}}>
-            <SelectGender />
-            <SelectAge />
+            <SelectGender onGenderChange={handleGenderChange}/>
+            <SelectAge onAgeChange={handleAgeChange} />
           </Box>
           <TextField
-            margin="normal"
             required
             fullWidth
             name="profession"
@@ -86,11 +110,11 @@ const CreatForm: React.FC = () => {
             margin="normal"
             required
             fullWidth
-            name="dailyLife"
+            name="behavior"
             label="普段の生活の様子"
             type="text"
-            id="daily-life"
-            value={formValues.dailyLife}
+            id="behavior"
+            value={formValues.behavior}
             onChange={handleInputChange}
           />
           <Button
