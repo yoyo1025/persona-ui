@@ -1,27 +1,32 @@
 import * as React from 'react';
+import { useParams } from 'react-router-dom';
 import { styled, useTheme } from '@mui/material/styles';
-import Box from '@mui/material/Box';
-import Drawer from '@mui/material/Drawer';
-import CssBaseline from '@mui/material/CssBaseline';
+import {
+  Box,
+  Drawer,
+  CssBaseline,
+  Toolbar,
+  List,
+  Divider,
+  IconButton,
+  Typography,
+  TextField,
+  Stack,
+  Button,
+  ListItem,
+  ListItemButton,
+  ListItemText,
+} from '@mui/material';
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import List from '@mui/material/List';
-import Divider from '@mui/material/Divider';
-import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
-import CreateIcon from '@mui/icons-material/Create';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemText from '@mui/material/ListItemText';
-import { Typography } from '@mui/material';
-import TextField from '@mui/material/TextField';
-import Stack from '@mui/material/Stack';
-import SendIcon from '@mui/icons-material/Send';
-import Button from '@mui/material/Button';
-import FavoriteBorderTwoToneIcon from '@mui/icons-material/FavoriteBorderTwoTone';
-import FavoriteTwoToneIcon from '@mui/icons-material/FavoriteTwoTone';
+import {
+  Menu as MenuIcon,
+  Create as CreateIcon,
+  ChevronLeft as ChevronLeftIcon,
+  ChevronRight as ChevronRightIcon,
+  Send as SendIcon,
+  FavoriteBorderTwoTone as FavoriteBorderTwoToneIcon,
+  FavoriteTwoTone as FavoriteTwoToneIcon,
+} from '@mui/icons-material';
 
 const drawerWidth = 240;
 
@@ -53,6 +58,7 @@ const archive = [
 ];
 
 interface Message {
+  id?: number;
   userID: number;
   personaID: number;
   comment: string;
@@ -114,19 +120,12 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 }));
 
 export default function Conversation() {
+  const { id: personaID } = useParams<{ id: string }>(); // URLからペルソナIDを取得
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
   const [message, setMessage] = React.useState('');
-  const [messages, setMessages] = React.useState<Message[]>([
-    {
-      userID: 1,
-      personaID: 1,
-      comment:
-        "こんにちは、私の名前は山田勇作です。30歳でプロのエンジニアとして働いています。平日は仕事に励み、その後の自由な時間にはプログラミングを学習することが多いのですが、最近は上達している実感がなく、そのためにモチベーションが続かないという悩みがあります。一日の終わりには疲れてすぐに寝てしまうこともしばしば。休日は家族と過ごす時間を大切にしています。新たなスキルを習得するため、プログラミング学習のモチベーションを保つ方法を見つけたいと考えています。よろしくお願いいたします。",
-      isUserComment: false,
-      good: true,
-    },
-  ]);
+  const [messages, setMessages] = React.useState<Message[]>([]);
+
   const handleFavoClick = (index: number) => {
     const updatedMessages = messages.map((msg, i) =>
       i === index ? { ...msg, good: !msg.good } : msg
@@ -142,28 +141,107 @@ export default function Conversation() {
     setOpen(false);
   };
 
-  const handleSendMessage = () => {
+  // 初回レンダリング時に会話履歴を取得
+  React.useEffect(() => {
+    const fetchMessages = async () => {
+      const initialMessages = await getMessages();
+      setMessages(initialMessages);
+    };
+
+    fetchMessages();
+  }, [personaID]);
+
+  const getMessages = async (): Promise<Message[]> => {
+    try {
+      const response = await fetch(`http://localhost:30000/conversation/${personaID}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('成功：', data);
+
+        // プロパティ名を変換
+        const transformedData = data.map((msg: any) => ({
+          id: msg.id,
+          userID: msg.user_id,
+          personaID: msg.persona_id,
+          comment: msg.comment,
+          isUserComment: msg.is_user_comment,
+          good: msg.good,
+        }));
+
+        return transformedData;
+      } else {
+        console.error('エラー：データの取得に失敗しました');
+        return [];
+      }
+    } catch (error) {
+      console.error('通信エラー:', error);
+      return [];
+    }
+  };
+
+  const postMessage = async (messageContent: string): Promise<Message | null> => {
+    try {
+      const response = await fetch(`http://localhost:30000/conversation/${personaID}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ comment: messageContent }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('成功：', data);
+
+        // プロパティ名を変換
+        const transformedMessage: Message = {
+          id: data.id,
+          userID: data.user_id,
+          personaID: data.persona_id,
+          comment: data.comment,
+          isUserComment: data.is_user_comment,
+          good: data.good,
+        };
+
+        return transformedMessage; // サーバーからのAIの返信を返す
+      } else {
+        console.error('エラー：データの取得に失敗しました');
+        return null;
+      }
+    } catch (error) {
+      console.error('通信エラー:', error);
+      return null;
+    }
+  };
+
+  const handleSendMessage = async () => {
     if (message.trim() !== '') {
       const newMessage: Message = {
         userID: 1,
-        personaID: 1,
+        personaID: Number(personaID),
         comment: message,
         isUserComment: true,
         good: false,
       };
-      setMessages([...messages, newMessage]);
+
+      // ユーザーのメッセージを表示
+      setMessages((prevMessages) => [...prevMessages, newMessage]);
       setMessage('');
 
-      // ここでバックエンドにリクエストを送信し、AIからの返信を取得します
-      // 今回はサンプルとして固定の返信を追加します
-      const aiResponse: Message = {
-        userID: 1,
-        personaID: 1,
-        comment: 'ご質問ありがとうございます。詳しくお聞かせいただけますか？',
-        isUserComment: false,
-        good: false,
-      };
-      setMessages(prevMessages => [...prevMessages, aiResponse]);
+      // サーバーにメッセージを送信し、AIからの返信を取得
+      const aiResponse = await postMessage(message);
+
+      // AIからのメッセージを表示
+      if (aiResponse) {
+        setMessages((prevMessages) => [...prevMessages, aiResponse]);
+        window.location.reload();
+      }
     }
   };
 
@@ -241,7 +319,8 @@ export default function Conversation() {
       <Main open={open}>
         {/* メッセージリスト */}
         <br/>
-        <br />
+        <br/>
+        <br/>
         <Box
           id="messageList"
           sx={{
@@ -274,14 +353,14 @@ export default function Conversation() {
                 {msg.comment}
               </Box>
               {!msg.isUserComment && (
-            <IconButton onClick={() => handleFavoClick(index)}>
-              {msg.good ? (
-                <FavoriteTwoToneIcon color="secondary" />
-              ) : (
-                <FavoriteBorderTwoToneIcon />
+                <IconButton onClick={() => handleFavoClick(index)}>
+                  {msg.good ? (
+                    <FavoriteTwoToneIcon color="secondary" />
+                  ) : (
+                    <FavoriteBorderTwoToneIcon />
+                  )}
+                </IconButton>
               )}
-            </IconButton>
-          )}
             </Box>
           ))}
         </Box>
