@@ -8,8 +8,9 @@ import {
 } from "@mui/material";
 import SelectGender from "./SelectGender";
 import SelectAge from "./SelectAge";
+import { useNavigate } from "react-router-dom";
 
-const CreatForm: React.FC = () => {
+const PersonaForm: React.FC = () => {
   const [formValues, setFormValues] = React.useState({
     name: '',
     sex: '',
@@ -18,6 +19,8 @@ const CreatForm: React.FC = () => {
     problems: '',
     behavior: ''
   });
+
+  const navigate = useNavigate();
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
@@ -48,6 +51,7 @@ const CreatForm: React.FC = () => {
     if (response.ok) {
       const data = await response.json();
       console.log("成功：", data);
+      navigate(`/conversation/${data.id}`)
     } else {
       console.error("エラー：", response.statusText);
     }
@@ -131,4 +135,4 @@ const CreatForm: React.FC = () => {
   );
 };
 
-export default CreatForm;
+export default PersonaForm;
