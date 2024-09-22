@@ -27,35 +27,9 @@ import {
   FavoriteBorderTwoTone as FavoriteBorderTwoToneIcon,
   FavoriteTwoTone as FavoriteTwoToneIcon,
 } from '@mui/icons-material';
+import { usePersonaContext } from './context/PersonaContext';
 
 const drawerWidth = 240;
-
-const archive = [
-  {
-    name: "○○さん",
-    problem: "△△で困っている",
-  },
-  {
-    name: "○○さん",
-    problem: "△△で困っている",
-  },
-  {
-    name: "○○さん",
-    problem: "△△で困っている",
-  },
-  {
-    name: "○○さん",
-    problem: "△△で困っている",
-  },
-  {
-    name: "○○さん",
-    problem: "△△で困っている",
-  },
-  {
-    name: "○○さん",
-    problem: "△△で困っている",
-  },
-];
 
 interface Message {
   id?: number;
@@ -125,6 +99,7 @@ export default function Conversation() {
   const [open, setOpen] = React.useState(false);
   const [message, setMessage] = React.useState('');
   const [messages, setMessages] = React.useState<Message[]>([]);
+  const { archive } = usePersonaContext();
 
   const handleFavoClick = (index: number) => {
     const updatedMessages = messages.map((msg, i) =>
@@ -280,7 +255,11 @@ export default function Conversation() {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1, textAlign: 'center' }}>
-            ○○さん　　　　△△で困っている
+            {personaID !== undefined && archive[parseInt(personaID)] && (
+              <>
+                {archive[parseInt(personaID)].name}さん　　　　{archive[parseInt(personaID)].problems}
+              </>
+            )}
           </Typography>
           <CreateIcon />
         </Toolbar>
@@ -307,9 +286,9 @@ export default function Conversation() {
         {/* 履歴の表示 */}
         <List>
           {archive.map((item, index) => (
-            <ListItem key={index} disablePadding>
+            <ListItem key={item.id} disablePadding>
               <ListItemButton>
-                <ListItemText primary={item.name} secondary={item.problem} />
+                <ListItemText primary={item.name} secondary={item.problems} />
               </ListItemButton>
             </ListItem>
           ))}

@@ -15,43 +15,9 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import PersonaForm from './components/PersonaForm';
+import { usePersonaContext } from './context/PersonaContext'; // カスタムフックをインポート
 
 const drawerWidth = 240;
-
-const archive = [
-  {
-    name: "○○さん",
-    problem: "△△で困っている",
-  },
-  {
-    name: "○○さん",
-    problem: "△△で困っている",
-  },
-  {
-    name: "○○さん",
-    problem: "△△で困っている",
-  },
-  {
-    name: "○○さん",
-    problem: "△△で困っている",
-  },
-  {
-    name: "○○さん",
-    problem: "△△で困っている",
-  },
-  {
-    name: "○○さん",
-    problem: "△△で困っている",
-  },
-  {
-    name: "○○さん",
-    problem: "△△で困っている",
-  },
-  {
-    name: "○○さん",
-    problem: "△△で困っている",
-  },
-];
 
 const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
   open?: boolean;
@@ -105,6 +71,7 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 export default function CreateForm() {
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
+  const { archive } = usePersonaContext(); // usePersonaContextでデータを取得
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -157,9 +124,9 @@ export default function CreateForm() {
         {/* 履歴の表示 */}
         <List>
           {archive.map((item, index) => (
-            <ListItem key={index} disablePadding>
+            <ListItem key={item.id} disablePadding>
               <ListItemButton>
-                <ListItemText primary={item.name} secondary={item.problem} />
+                <ListItemText primary={item.name} secondary={item.problems} />
               </ListItemButton>
             </ListItem>
           ))}
