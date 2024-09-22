@@ -18,6 +18,7 @@ import {
   ListItemText,
 } from '@mui/material';
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
+import { useDialogs } from '@toolpad/core/useDialogs';
 import {
   Menu as MenuIcon,
   Create as CreateIcon,
@@ -100,6 +101,7 @@ export default function Conversation() {
   const [message, setMessage] = React.useState('');
   const [messages, setMessages] = React.useState<Message[]>([]);
   const { archive } = usePersonaContext();
+  const dialogs = useDialogs();
 
   const handleFavoClick = (index: number) => {
     const updatedMessages = messages.map((msg, i) =>
@@ -261,7 +263,20 @@ export default function Conversation() {
               </>
             )}
           </Typography>
-          <CreateIcon />
+          <CreateIcon
+            onClick={async () => {
+              // preview-start
+              const confirmed = await dialogs.confirm('Are you sure?', {
+                okText: 'Yes',
+                cancelText: 'No',
+              });
+              if (confirmed) {
+                await dialogs.alert("Then let's do it!");
+              } else {
+                await dialogs.alert('Ok, forget about it!');
+              }
+              // preview-end
+            }}/>
         </Toolbar>
       </AppBar>
       <Drawer
