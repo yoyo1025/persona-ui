@@ -30,6 +30,7 @@ import {
 } from '@mui/icons-material';
 import { usePersonaContext } from './context/PersonaContext';
 import { common } from '@mui/material/colors';
+import ReactMarkdown from 'react-markdown';
 
 const drawerWidth = 240;
 
@@ -301,8 +302,20 @@ export default function Conversation() {
                 });
                 
                 if (response.ok) {
-                  await dialogs.alert('要件定義書の作成に成功しました！');
-                  console.log(response);
+                  // レスポンスボディをJSONとしてパース
+                  const data = await response.json();
+                  const markdownDocument = data.document;
+
+                  // ダイアログ内にマークダウン形式のデータを表示
+                  await dialogs.alert(
+                  <div>
+                    <ReactMarkdown>{markdownDocument}</ReactMarkdown>
+                  </div>,
+                  { title: '要件定義書' } // ダイアログタイトルのオプション
+                  );
+
+                  // パースしたデータをコンソールに表示
+                  console.log(markdownDocument);  
                 } else {
                   await dialogs.alert('要件定義書の作成に失敗しました');
                 }
