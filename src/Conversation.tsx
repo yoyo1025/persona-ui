@@ -29,6 +29,7 @@ import {
   FavoriteTwoTone as FavoriteTwoToneIcon,
 } from '@mui/icons-material';
 import { usePersonaContext } from './context/PersonaContext';
+import { common } from '@mui/material/colors';
 
 const drawerWidth = 240;
 
@@ -257,26 +258,59 @@ export default function Conversation() {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1, textAlign: 'center' }}>
-            {personaID !== undefined && archive[parseInt(personaID)] && (
+            {personaID !== undefined && parseInt(personaID) + 1 < archive.length && (
               <>
-                {archive[parseInt(personaID)].name}さん　　　　{archive[parseInt(personaID)].problems}
+                {archive[parseInt(personaID) + 1].name}さん　　{archive[parseInt(personaID) + 1].problems}
               </>
             )}
           </Typography>
+
           <CreateIcon
-            onClick={async () => {
-              // preview-start
-              const confirmed = await dialogs.confirm('Are you sure?', {
-                okText: 'Yes',
-                cancelText: 'No',
-              });
-              if (confirmed) {
-                await dialogs.alert("Then let's do it!");
-              } else {
-                await dialogs.alert('Ok, forget about it!');
+          onClick={async () => {
+            // ダイアログを表示し、ユーザーに「要件定義書を作成しますか？」と質問
+            const confirmed = await dialogs.confirm('要件定義書を作成しますか?', {
+              okText: 'はい',
+              cancelText: 'いいえ',
+            });
+            
+            if (confirmed) {
+              // messagesからisUserCommentがfalseでgoodがtrueのメッセージをフィルタリング
+              const selectedMessages = messages.filter((msg: Message) => !msg.isUserComment && msg.good);
+              
+              // フィルタされたメッセージをPOSTデータとして構成
+              const postData = selectedMessages.map((msg) => ({
+                comment: msg.comment,
+                userID: msg.userID,
+                personaID: msg.personaID,
+              }));
+              
+              console.log(postData);
+              
+              // データをPOSTする処理
+              try {
+                const response = await fetch(`http://localhost:30000/document`, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify(postData),
+                });
+                
+                if (response.ok) {
+                  await dialogs.alert('要件定義書の作成に成功しました！');
+                  console.log(response);
+                } else {
+                  await dialogs.alert('要件定義書の作成に失敗しました');
+                }
+              } catch (error) {
+                await dialogs.alert('通信エラーが発生しました');
               }
-              // preview-end
-            }}/>
+            } else {
+              await dialogs.alert('要件定義書の作成をキャンセルしました');
+            }
+            }}
+            />
+
         </Toolbar>
       </AppBar>
       <Drawer
