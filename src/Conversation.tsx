@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { styled, useTheme } from '@mui/material/styles';
 import {
   Box,
@@ -102,6 +102,10 @@ export default function Conversation() {
   const [message, setMessage] = React.useState('');
   const [messages, setMessages] = React.useState<Message[]>([]);
   const { archive } = usePersonaContext();
+  console.log(personaID);
+  
+  console.log(archive);
+  
   const dialogs = useDialogs();
 
   const handleFavoClick = (index: number) => {
@@ -258,9 +262,9 @@ export default function Conversation() {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1, textAlign: 'center' }}>
-            {personaID !== undefined && parseInt(personaID) + 1 < archive.length && (
+            {personaID !== undefined && parseInt(personaID) < archive.length + 1 && (
               <>
-                {archive[parseInt(personaID) + 1].name}さん　　{archive[parseInt(personaID) + 1].problems}
+                {archive[parseInt(personaID)-1].name}さん　　{archive[parseInt(personaID)-1].problems}
               </>
             )}
           </Typography>
@@ -336,9 +340,11 @@ export default function Conversation() {
         <List>
           {archive.map((item, index) => (
             <ListItem key={item.id} disablePadding>
-              <ListItemButton>
-                <ListItemText primary={item.name} secondary={item.problems} />
-              </ListItemButton>
+              <Link to={`/conversation/${item.id}`}>
+                <ListItemButton>
+                  <ListItemText color='black' primary={item.name} secondary={item.problems} />
+                </ListItemButton>
+              </Link>
             </ListItem>
           ))}
         </List>

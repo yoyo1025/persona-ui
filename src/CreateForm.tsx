@@ -16,6 +16,7 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import PersonaForm from './components/PersonaForm';
 import { usePersonaContext } from './context/PersonaContext'; // カスタムフックをインポート
+import { Link } from 'react-router-dom';
 
 const drawerWidth = 240;
 
@@ -125,9 +126,11 @@ export default function CreateForm() {
         <List>
           {archive.map((item, index) => (
             <ListItem key={item.id} disablePadding>
-              <ListItemButton>
-                <ListItemText primary={item.name} secondary={item.problems} />
-              </ListItemButton>
+              <Link to={`/conversation/${item.id}`}>
+                <ListItemButton>
+                  <ListItemText color='black' primary={item.name} secondary={item.problems} />
+                </ListItemButton>
+              </Link>
             </ListItem>
           ))}
         </List>
