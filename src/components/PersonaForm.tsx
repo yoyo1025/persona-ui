@@ -9,6 +9,7 @@ import {
 import SelectGender from "./SelectGender";
 import SelectAge from "./SelectAge";
 import { useNavigate } from "react-router-dom";
+import LinearProgress from '@mui/material/LinearProgress';
 
 const PersonaForm: React.FC = () => {
   const [formValues, setFormValues] = React.useState({
@@ -21,6 +22,7 @@ const PersonaForm: React.FC = () => {
   });
 
   const navigate = useNavigate();
+  const [progress, setProgress] = React.useState<boolean>(false);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
@@ -33,6 +35,10 @@ const PersonaForm: React.FC = () => {
 
   const handleAgeChange = (age: number) => {
     setFormValues({ ...formValues, age});
+  };
+
+  const handleProgress = () => {
+    setProgress(!progress);
   };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -67,6 +73,12 @@ const PersonaForm: React.FC = () => {
           alignItems: "center",
         }}
       >
+        {progress ? 
+          <Box sx={{ width: '100%', marginBottom: '20px' }}>
+            ペルソナ作成中
+            <LinearProgress />
+          </Box> : <></>
+        }
         <Typography component="h1" variant="h4" sx={{ color: 'black' }}>
           ペルソナを新規作成
         </Typography>
@@ -126,6 +138,7 @@ const PersonaForm: React.FC = () => {
             fullWidth
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
+            onClick={handleProgress}
           >
             新規作成
           </Button>
