@@ -19,7 +19,7 @@ const SelectAge: React.FC<SelectAgeProps> = ({ onAgeChange }) => {
 
   return (
     <FormControl sx={{ m: 1, minWidth: 120}} size="small">
-      <InputLabel id="demo-select-small-label">年齢</InputLabel>
+      <InputLabel id="demo-select-small-label">age</InputLabel>
       <Select
         labelId="demo-select-small-label"
         id="demo-select-small"
@@ -28,11 +28,11 @@ const SelectAge: React.FC<SelectAgeProps> = ({ onAgeChange }) => {
         onChange={handleChange}
       >
         <MenuItem value="">
-          <em>選択なし</em>
+          <em>none</em>
         </MenuItem>
-        <MenuItem value="10">10代</MenuItem>
-        <MenuItem value="20">20代</MenuItem>
-        <MenuItem value="30">30代</MenuItem>
+        <MenuItem value="10"> 6-15</MenuItem>
+        <MenuItem value="20">16-25</MenuItem>
+        <MenuItem value="30">26-35</MenuItem>
       </Select>
     </FormControl>
   );

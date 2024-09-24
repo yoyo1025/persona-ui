@@ -17,8 +17,15 @@ import ListItemText from '@mui/material/ListItemText';
 import PersonaForm from './components/PersonaForm';
 import { usePersonaContext } from './context/PersonaContext'; // カスタムフックをインポート
 import { Link } from 'react-router-dom';
+import Brightness4Icon from '@mui/icons-material/Brightness4';
+import Brightness7Icon from '@mui/icons-material/Brightness7'
 
 const drawerWidth = 240;
+
+interface CreateFormProps {
+  setMode: React.Dispatch<React.SetStateAction<'light' | 'dark'>>;
+  mode: 'light' | 'dark';
+}
 
 const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
   open?: boolean;
@@ -69,7 +76,7 @@ const DrawerHeader = styled('div')(({ theme }) => ({
   justifyContent: 'flex-end',
 }));
 
-export default function CreateForm() {
+export default function CreateForm({ setMode, mode }: CreateFormProps) {
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
   const { archive } = usePersonaContext(); // usePersonaContextでデータを取得
@@ -92,14 +99,20 @@ export default function CreateForm() {
             aria-label="open drawer"
             onClick={handleDrawerOpen}
             edge="start"
-            sx={[
-              {
-                mr: 2,
-              },
-              open && { display: 'none' },
-            ]}
+            sx={{
+              mr: 2,
+              ...(open && { display: 'none' }),
+            }}
           >
             <MenuIcon />
+          </IconButton>
+          {/* Add Theme Toggle Button */}
+          <IconButton
+            sx={{ ml: 1 }}
+            onClick={() => setMode(mode === 'light' ? 'dark' : 'light')}
+            color="inherit"
+          >
+            {theme.palette.mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
           </IconButton>
         </Toolbar>
       </AppBar>

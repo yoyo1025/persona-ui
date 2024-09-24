@@ -16,15 +16,15 @@ const SelectGender: React.FC<SelectGenderProps> = ({ onGenderChange }) => {
 
   return (
     <FormControl sx={{ m: 1 }} component="fieldset">
-      <FormLabel component="legend">性別</FormLabel>
+      <FormLabel component="legend"></FormLabel>
       <RadioGroup
         row
         aria-labelledby="demo-row-radio-buttons-group-label"
         name="sex"
         onChange={handleGenderChange}  // 親コンポーネントに変更を渡す
       >
-        <FormControlLabel value="female" control={<Radio />} label="女性" sx={{ color: 'black' }}/>
-        <FormControlLabel value="male" control={<Radio />} label="男性" sx={{ color: 'black' }}/>
+        <FormControlLabel value="female" control={<Radio />} label="female"/>
+        <FormControlLabel value="male" control={<Radio />} label="male"/>
       </RadioGroup>
     </FormControl>
   );

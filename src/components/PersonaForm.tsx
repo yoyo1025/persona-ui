@@ -10,6 +10,8 @@ import SelectGender from "./SelectGender";
 import SelectAge from "./SelectAge";
 import { useNavigate } from "react-router-dom";
 import LinearProgress from '@mui/material/LinearProgress';
+import { borders } from '@mui/system';
+
 
 const PersonaForm: React.FC = () => {
   const [formValues, setFormValues] = React.useState({
@@ -71,16 +73,23 @@ const PersonaForm: React.FC = () => {
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
+          border: 1,
+          borderRadius: '10px',
+          paddingLeft: 5,
+          paddingRight: 5,
+          paddingTop: 5, 
+          paddingBottom: 3,
+          boxShadow: 5, // ここで影を追加
         }}
       >
         {progress ? 
-          <Box sx={{ width: '100%', marginBottom: '20px' }}>
-            ペルソナ作成中
+          <Box sx={{ width: '100%'}}>
+            now createing
             <LinearProgress />
           </Box> : <></>
         }
-        <Typography component="h1" variant="h4" sx={{ color: 'black' }}>
-          ペルソナを新規作成
+        <Typography component="h1" variant="h4">
+          Create Persona
         </Typography>
 
         <Box component="form" noValidate sx={{ mt: 1 }} onSubmit={handleSubmit}>
@@ -89,12 +98,14 @@ const PersonaForm: React.FC = () => {
             required
             fullWidth
             id="name"
-            label="名前"
+            label="name"
             name="name"
             autoComplete="name"
             autoFocus
             value={formValues.name}
             onChange={handleInputChange}
+            variant="outlined" 
+            sx={{ '& .MuiOutlinedInput-root': { borderRadius: '10px' } }} 
           />
           {/* 性別と年齢を縦並びにするためのボックス */}
           <Box sx={{ display: 'flex', width: '100%', alignItems: "center", justifyContent: "center"}}>
@@ -105,42 +116,48 @@ const PersonaForm: React.FC = () => {
             required
             fullWidth
             name="profession"
-            label="職業"
+            label="profession"
             type="text"
             id="profession"
             value={formValues.profession}
             onChange={handleInputChange}
+            variant="outlined" // variantを指定
+            sx={{ '& .MuiOutlinedInput-root': { borderRadius: '10px' } }} // 丸みを追加
           />
           <TextField
             margin="normal"
             required
             fullWidth
             name="problems"
-            label="困りごと"
+            label="problems"
             type="text"
             id="problems"
             value={formValues.problems}
             onChange={handleInputChange}
+            variant="outlined" // variantを指定
+            sx={{ '& .MuiOutlinedInput-root': { borderRadius: '10px' } }} // 丸みを追加
           />
           <TextField
             margin="normal"
             required
             fullWidth
             name="behavior"
-            label="普段の生活の様子"
+            label="behavior"
             type="text"
             id="behavior"
             value={formValues.behavior}
             onChange={handleInputChange}
+            variant="outlined" // variantを指定
+            sx={{ '& .MuiOutlinedInput-root': { borderRadius: '10px' } }} // 丸みを追加
           />
           <Button
             type="submit"
             fullWidth
             variant="contained"
-            sx={{ mt: 3, mb: 2 }}
+            sx={{ mt: 3, mb: 2, textTransform: 'none',  borderRadius: '8px', fontWeight: 'bold'}}
             onClick={handleProgress}
           >
-            新規作成
+            Create Persona
           </Button>
         </Box>
       </Box>
