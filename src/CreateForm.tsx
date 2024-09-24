@@ -106,7 +106,11 @@ export default function CreateForm({ setMode, mode }: CreateFormProps) {
           >
             <MenuIcon />
           </IconButton>
-          {/* Add Theme Toggle Button */}
+
+          {/* flexGrowを追加して、右側に余白を作る */}
+          <Box sx={{ flexGrow: 1 }} />
+
+          {/* テーマ切り替えボタンを右側に配置 */}
           <IconButton
             sx={{ ml: 1 }}
             onClick={() => setMode(mode === 'light' ? 'dark' : 'light')}
@@ -139,12 +143,19 @@ export default function CreateForm({ setMode, mode }: CreateFormProps) {
         <List>
           {archive.map((item, index) => (
             <ListItem key={item.id} disablePadding>
-              <Link to={`/conversation/${item.id}`}>
-                <ListItemButton>
-                  <ListItemText color='black' primary={item.name} secondary={item.problems} />
-                </ListItemButton>
-              </Link>
-            </ListItem>
+            <Link
+              to={`/conversation/${item.id}`}
+              style={{ textDecoration: 'none', color: 'inherit' }} // 下線を消し、色を継承
+            >
+              <ListItemButton sx={{ color: 'text.primary' }}> 
+                <ListItemText
+                  primary={item.name}
+                  secondary={item.problems}
+                  sx={{ color: 'inherit' }} // 継承することで、リンクと同じ色を使用
+                />
+              </ListItemButton>
+            </Link>
+          </ListItem>    
           ))}
         </List>
         <Divider />

@@ -14,6 +14,9 @@ function App() {
     palette: {
       mode: mode,
     },
+    typography: {
+      fontFamily: 'Arial, sans-serif',
+    },
   });
 
   return (
@@ -24,7 +27,7 @@ function App() {
             <Routes>
               {/* Pass setMode and mode as props */}
               <Route path="/" element={<CreateForm setMode={setMode} mode={mode} />} />
-              <Route path="/conversation/:id" element={<Conversation />} />
+              <Route path="/conversation/:id" element={<Conversation setMode={setMode} mode={mode} />} />
             </Routes>
           </Router>
         </DialogsProvider>

@@ -27,11 +27,17 @@ import {
   ChevronRight as ChevronRightIcon,
   Send as SendIcon,
   FavoriteBorderTwoTone as FavoriteBorderTwoToneIcon,
-  FavoriteTwoTone as FavoriteTwoToneIcon,
+  FavoriteTwoTone as FavoriteTwoToneIcon
 } from '@mui/icons-material';
 import { usePersonaContext } from './context/PersonaContext';
-import { common } from '@mui/material/colors';
 import ReactMarkdown from 'react-markdown';
+import Brightness4Icon from '@mui/icons-material/Brightness4';
+import Brightness7Icon from '@mui/icons-material/Brightness7';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
+
 
 const drawerWidth = 240;
 
@@ -42,6 +48,11 @@ interface Message {
   comment: string;
   isUserComment: boolean;
   good: boolean;
+}
+
+interface ConversationProps {
+  setMode: React.Dispatch<React.SetStateAction<'light' | 'dark'>>;
+  mode: 'light' | 'dark';
 }
 
 const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
@@ -97,7 +108,7 @@ const DrawerHeader = styled('div')(({ theme }) => ({
   justifyContent: 'flex-end',
 }));
 
-export default function Conversation() {
+export default function Conversation({ setMode, mode }: ConversationProps) {
   const { id: personaID } = useParams<{ id: string }>(); // URLからペルソナIDを取得
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
@@ -105,6 +116,11 @@ export default function Conversation() {
   const [messages, setMessages] = React.useState<Message[]>([]);
   const { archive } = usePersonaContext();
   const [generateDocument, setGenerateDocument] = React.useState<boolean>(false);
+  const [openDocumentDialog, setOpenDocumentDialog] = React.useState(false);
+  const [documentContent, setDocumentContent] = React.useState('');
+  const [copySuccess, setCopySuccess] = React.useState('');
+
+
   console.log(personaID);
   
   console.log(archive);
@@ -231,8 +247,9 @@ export default function Conversation() {
   };
 
   const handleDocumentProgress = () => {
-    setGenerateDocument(!generateDocument)
+    setGenerateDocument(true);
   };
+  
 
   // メッセージが追加されたときにスクロール位置を一番下に移動
   React.useEffect(() => {
@@ -275,65 +292,64 @@ export default function Conversation() {
               </>
             )}
           </Typography>
+          <IconButton
+            sx={{ ml: 1 }}
+            onClick={() => setMode(mode === 'light' ? 'dark' : 'light')}
+            color="inherit"
+          >
+            {theme.palette.mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
+          </IconButton>
 
           <CreateIcon
-          onClick={async () => {
-            // ダイアログを表示し、ユーザーに「要件定義書を作成しますか？」と質問
-            const confirmed = await dialogs.confirm('要件定義書を作成しますか?', {
-              okText: 'はい',
-              cancelText: 'いいえ',
-            });
-            
-            if (confirmed) {
-              // messagesからisUserCommentがfalseでgoodがtrueのメッセージをフィルタリング
-              const selectedMessages = messages.filter((msg: Message) => !msg.isUserComment && msg.good);
-              
-              // フィルタされたメッセージをPOSTデータとして構成
-              const postData = selectedMessages.map((msg) => ({
-                comment: msg.comment,
-                userID: msg.userID,
-                personaID: msg.personaID,
-              }));
-              
-              console.log(postData);
-              
-              // データをPOSTする処理
-              try {
-                const response = await fetch(`http://localhost:30000/document`, {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
-                  body: JSON.stringify(postData),
-                });
-                
-                if (response.ok) {
-                  handleDocumentProgress();
-                  // レスポンスボディをJSONとしてパース
-                  const data = await response.json();
-                  const markdownDocument = data.document;
+            onClick={async () => {
+              const confirmed = await dialogs.confirm('要件定義書を作成しますか?', {
+                okText: 'はい',
+                cancelText: 'いいえ',
+              });
 
-                  // ダイアログ内にマークダウン形式のデータを表示
-                  await dialogs.alert(
-                  <div>
-                    <ReactMarkdown>{markdownDocument}</ReactMarkdown>
-                  </div>,
-                  { title: '要件定義書' } // ダイアログタイトルのオプション
-                  );
+              if (confirmed) {
+                handleDocumentProgress(); // Start progress bar
 
-                  // パースしたデータをコンソールに表示
-                  console.log(markdownDocument);  
-                } else {
-                  await dialogs.alert('要件定義書の作成に失敗しました');
+                // Prepare data for API call
+                const selectedMessages = messages.filter(
+                  (msg: Message) => !msg.isUserComment && msg.good
+                );
+                const postData = selectedMessages.map((msg) => ({
+                  comment: msg.comment,
+                  userID: msg.userID,
+                  personaID: msg.personaID,
+                }));
+
+                try {
+                  const response = await fetch(`http://localhost:30000/document`, {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(postData),
+                  });
+
+                  // Stop progress bar after API call
+                  setGenerateDocument(false);
+
+                  if (response.ok) {
+                    const data = await response.json();
+                    const markdownDocument = data.document;
+                    setDocumentContent(markdownDocument);
+                    setOpenDocumentDialog(true);
+                  } else {
+                    await dialogs.alert('要件定義書の作成に失敗しました');
+                  }
+                } catch (error) {
+                  setGenerateDocument(false);
+                  await dialogs.alert('通信エラーが発生しました');
                 }
-              } catch (error) {
-                await dialogs.alert('通信エラーが発生しました');
+              } else {
+                await dialogs.alert('要件定義書の作成をキャンセルしました');
               }
-            } else {
-              await dialogs.alert('要件定義書の作成をキャンセルしました');
-            }
             }}
-            />
+          />
+
 
         </Toolbar>
       </AppBar>
@@ -360,12 +376,19 @@ export default function Conversation() {
         <List>
           {archive.map((item, index) => (
             <ListItem key={item.id} disablePadding>
-              <Link to={`/conversation/${item.id}`}>
-                <ListItemButton>
-                  <ListItemText color='black' primary={item.name} secondary={item.problems} />
-                </ListItemButton>
-              </Link>
-            </ListItem>
+            <Link
+              to={`/conversation/${item.id}`}
+              style={{ textDecoration: 'none', color: 'inherit' }} // 下線を消し、色を継承
+            >
+              <ListItemButton sx={{ color: 'text.primary' }}> 
+                <ListItemText
+                  primary={item.name}
+                  secondary={item.problems}
+                  sx={{ color: 'inherit' }} // 継承することで、リンクと同じ色を使用
+                />
+              </ListItemButton>
+            </Link>
+          </ListItem>          
           ))}
         </List>
         <Divider />
@@ -375,12 +398,13 @@ export default function Conversation() {
         <br/>
         <br/>
         <br/>
-        {generateDocument ? 
+        {/* Show progress bar when generating document */}
+        {generateDocument && (
           <Box sx={{ width: '100%', marginBottom: '20px' }}>
             要件定義書作成中
             <LinearProgress />
-          </Box> : <></>
-        }
+          </Box>
+        )}
         <Box
           id="messageList"
           sx={{
@@ -397,17 +421,32 @@ export default function Conversation() {
               sx={{
                 display: 'flex',
                 justifyContent: msg.isUserComment ? 'flex-end' : 'flex-start',
-                mb: 1,
+                mb: 2,
               }}
             >
               <Box
                 sx={{
                   maxWidth: '60%',
-                  bgcolor: msg.isUserComment ? 'primary.main' : 'grey.300',
-                  color: msg.isUserComment ? 'primary.contrastText' : 'black',
-                  p: 1,
-                  borderRadius: 3,
+                  bgcolor: msg.isUserComment
+                    ? 'primary.main'
+                    : theme.palette.mode === 'light'
+                    ? 'grey.300'
+                    : 'grey.700', // Adjusted for dark mode
+                  color: msg.isUserComment ? 'primary.contrastText' : 'text.primary',
+                  p: 1.8, // Increased padding
+                  borderRadius: 4, // Increased border radius
                   wordBreak: 'break-word',
+                  fontFamily: 'Arial, sans-serif', // Set font family
+                  fontSize: '1rem', // Adjust font size if needed
+                  fontWeight: 600,
+                  transition: 'background-color 0.3s', // 色の変更にアニメーションを付与
+                  '&:hover': {
+                    bgcolor: msg.isUserComment
+                      ? 'primary.dark' // ユーザーコメントのhover時の背景色
+                      : theme.palette.mode === 'light'
+                      ? 'grey.400' // システムコメントのhover時の背景色（ライトモード）
+                      : 'grey.600', // システムコメントのhover時の背景色（ダークモード）
+                  },
                 }}
               >
                 {msg.comment}
@@ -442,11 +481,46 @@ export default function Conversation() {
               }}
             />
             <Button variant="contained" endIcon={<SendIcon />} onClick={handleSendMessage}>
-              送信
             </Button>
           </Stack>
         </Box>
       </Main>
+      <Dialog
+        open={openDocumentDialog}
+        onClose={() => setOpenDocumentDialog(false)}
+        maxWidth={false}
+        fullWidth
+        sx={{
+          '& .MuiDialog-paper': {
+            width: '80%',
+            maxWidth: 'none',
+          },
+        }}
+      >
+        <DialogTitle>要件定義書</DialogTitle>
+        <DialogContent dividers sx={{ userSelect: 'text' }}>
+          <ReactMarkdown>{documentContent}</ReactMarkdown>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => {
+              navigator.clipboard.writeText(documentContent);
+              setCopySuccess('コピーしました！'); // Feedback after copy
+            }}
+            color="secondary"
+          >
+            コピー
+          </Button>
+          {copySuccess && (
+            <Typography sx={{ ml: 2, color: 'green' }}>
+              {copySuccess}
+            </Typography>
+          )}
+          <Button onClick={() => setOpenDocumentDialog(false)} color="primary">
+            閉じる
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }
