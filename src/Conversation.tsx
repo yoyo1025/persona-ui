@@ -16,6 +16,7 @@ import {
   ListItem,
   ListItemButton,
   ListItemText,
+  LinearProgress,
 } from '@mui/material';
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import { useDialogs } from '@toolpad/core/useDialogs';
@@ -103,6 +104,7 @@ export default function Conversation() {
   const [message, setMessage] = React.useState('');
   const [messages, setMessages] = React.useState<Message[]>([]);
   const { archive } = usePersonaContext();
+  const [generateDocument, setGenerateDocument] = React.useState<boolean>(false);
   console.log(personaID);
   
   console.log(archive);
@@ -228,6 +230,10 @@ export default function Conversation() {
     }
   };
 
+  const handleDocumentProgress = () => {
+    setGenerateDocument(!generateDocument)
+  };
+
   // メッセージが追加されたときにスクロール位置を一番下に移動
   React.useEffect(() => {
     const messageList = document.getElementById('messageList');
@@ -302,6 +308,7 @@ export default function Conversation() {
                 });
                 
                 if (response.ok) {
+                  handleDocumentProgress();
                   // レスポンスボディをJSONとしてパース
                   const data = await response.json();
                   const markdownDocument = data.document;
@@ -368,6 +375,12 @@ export default function Conversation() {
         <br/>
         <br/>
         <br/>
+        {generateDocument ? 
+          <Box sx={{ width: '100%', marginBottom: '20px' }}>
+            要件定義書作成中
+            <LinearProgress />
+          </Box> : <></>
+        }
         <Box
           id="messageList"
           sx={{
