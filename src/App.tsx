@@ -5,6 +5,7 @@ import { PersonaProvider } from './context/PersonaContext';
 import { DialogsProvider } from '@toolpad/core/useDialogs'; 
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useState } from 'react';
+import SignInSide from './sign-in-side/SignInSide';
 
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
               {/* Pass setMode and mode as props */}
               <Route path="/" element={<CreateForm setMode={setMode} mode={mode} />} />
               <Route path="/conversation/:id" element={<Conversation setMode={setMode} mode={mode} />} />
+              <Route path="/login" element={<SignInSide />} />
             </Routes>
           </Router>
         </DialogsProvider>
