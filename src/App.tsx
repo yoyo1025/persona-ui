@@ -6,6 +6,7 @@ import { DialogsProvider } from '@toolpad/core/useDialogs';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useState } from 'react';
 import SignInSide from './sign-in-side/SignInSide';
+import SignUpSide from './sign-up-side/SignUpSide';
 
 
 function App() {
@@ -30,6 +31,7 @@ function App() {
               <Route path="/" element={<CreateForm setMode={setMode} mode={mode} />} />
               <Route path="/conversation/:id" element={<Conversation setMode={setMode} mode={mode} />} />
               <Route path="/login" element={<SignInSide />} />
+              <Route path="/signup" element={<SignUpSide />} />
             </Routes>
           </Router>
         </DialogsProvider>
