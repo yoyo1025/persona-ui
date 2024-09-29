@@ -7,19 +7,13 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useState } from 'react';
 import SignInSide from './sign-in-side/SignInSide';
 import SignUpSide from './sign-up-side/SignUpSide';
-
+import { getDesignTokens } from './sign-in-side/theme/themePrimitives'; // カスタムテーマをインポート
 
 function App() {
-  const [mode, setMode] = useState<'light' | 'dark'>('light');
+  const [mode, setMode] = useState<'light' | 'dark'>('dark');
 
-  const theme = createTheme({
-    palette: {
-      mode: mode,
-    },
-    typography: {
-      fontFamily: 'Arial, sans-serif',
-    },
-  });
+  // カスタムテーマを適用
+  const theme = createTheme(getDesignTokens(mode));
 
   return (
     <ThemeProvider theme={theme}>
@@ -27,7 +21,6 @@ function App() {
         <DialogsProvider>
           <Router>
             <Routes>
-              {/* Pass setMode and mode as props */}
               <Route path="/" element={<CreateForm setMode={setMode} mode={mode} />} />
               <Route path="/conversation/:id" element={<Conversation setMode={setMode} mode={mode} />} />
               <Route path="/login" element={<SignInSide />} />
