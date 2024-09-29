@@ -10,11 +10,11 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import Link from '@mui/material/Link';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-
 import { styled } from '@mui/material/styles';
-
+import { createUserWithEmailAndPassword } from 'firebase/auth'; // Firebaseのサインアップ関数
+import { auth } from '../firebase'; // Firebaseのauthオブジェクト
 import ForgotPassword from './ForgotPassword';
-import { GoogleIcon, FacebookIcon, SitemarkIcon } from './CustomIcons';
+import { GoogleIcon, SitemarkIcon } from './CustomIcons';
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: 'flex',
@@ -52,10 +52,29 @@ export default function SignUpCard() {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    });
+    const email = data.get('email') as string;
+    const password = data.get('password') as string;
+
+    if (validateInputs()) {
+      // Firebaseのサインアップを行う
+      createUserWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+          // サインアップ成功時の処理
+          const user = userCredential.user;
+          console.log('サインアップ成功:', user);
+          // サインアップ成功後にリダイレクト
+          window.location.href = 'http://localhost:5173/';
+        })
+        .catch((error) => {
+          // サインアップ失敗時の処理
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          console.error('サインアップエラー:', errorCode, errorMessage);
+          // エラーメッセージを表示する
+          setEmailError(true);
+          setEmailErrorMessage(errorMessage);
+        });
+    }
   };
 
   const validateInputs = () => {
@@ -145,7 +164,7 @@ export default function SignUpCard() {
           label="Remember me"
         />
         <ForgotPassword open={open} handleClose={handleClose} />
-        <Button type="submit" fullWidth variant="contained" onClick={validateInputs}>
+        <Button type="submit" fullWidth variant="contained">
           Sign up
         </Button>
         <Typography sx={{ textAlign: 'center' }}>

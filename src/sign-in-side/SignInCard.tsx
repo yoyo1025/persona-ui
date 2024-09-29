@@ -14,7 +14,10 @@ import Typography from '@mui/material/Typography';
 import { styled } from '@mui/material/styles';
 
 import ForgotPassword from './ForgotPassword';
-import { GoogleIcon, FacebookIcon, SitemarkIcon } from './CustomIcons';
+import { GoogleIcon, SitemarkIcon } from './CustomIcons';
+
+import { signInWithEmailAndPassword } from 'firebase/auth'; // Firebaseのログイン関数
+import { auth } from '../firebase'; // Firebaseのauthオブジェクト
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: 'flex',
@@ -52,10 +55,27 @@ export default function SignInCard() {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    });
+    const email = data.get('email') as string;
+    const password = data.get('password') as string;
+
+    if (validateInputs()) {
+      // Firebaseのサインインを行う
+      signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+          // ログイン成功時の処理
+          const user = userCredential.user;
+          console.log('ログイン成功:', user);
+          window.location.href = 'http://localhost:5173/'; // ログイン後にリダイレクト
+        })
+        .catch((error) => {
+          // ログイン失敗時の処理
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          console.error('ログインエラー:', errorCode, errorMessage);
+          setEmailError(true);
+          setEmailErrorMessage(errorMessage);
+        });
+    }
   };
 
   const validateInputs = () => {
