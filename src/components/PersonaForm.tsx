@@ -10,7 +10,6 @@ import SelectGender from "./SelectGender";
 import SelectAge from "./SelectAge";
 import { useNavigate } from "react-router-dom";
 import LinearProgress from '@mui/material/LinearProgress';
-import { borders } from '@mui/system';
 
 
 const PersonaForm: React.FC = () => {

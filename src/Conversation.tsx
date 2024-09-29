@@ -374,7 +374,7 @@ export default function Conversation({ setMode, mode }: ConversationProps) {
         <Divider />
         {/* 履歴の表示 */}
         <List>
-          {archive.map((item, index) => (
+          {archive.map((item) => (
             <ListItem key={item.id} disablePadding>
             <Link
               to={`/conversation/${item.id}`}
