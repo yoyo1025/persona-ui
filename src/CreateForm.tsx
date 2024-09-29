@@ -90,7 +90,7 @@ export default function CreateForm({ setMode, mode }: CreateFormProps) {
   };
 
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: 'flex', bgcolor: 'background.default', minHeight: '100vh'}}>
       <CssBaseline />
       <AppBar position="fixed" open={open}>
         <Toolbar>
