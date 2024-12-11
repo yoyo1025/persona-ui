@@ -48,4 +48,5 @@ export default tseslint.config({
   },
 })
 ```
-# persona-ui
+## 参考リンク
+- https://www.wantedly.com/id/yosei_tadano/items/35b83014-e819-4203-990c-1eadd22a2417
